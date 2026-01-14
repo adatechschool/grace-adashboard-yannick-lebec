@@ -12,6 +12,7 @@ function App() {
     fetch("http://localhost:3000/themes")
       .then((res) => res.json())
       .then((data) => {
+        console.log(data);
         setValue(data);
         setLoading(false);
       })
@@ -21,46 +22,20 @@ function App() {
       });
   }, []);
 
-  const updateSkillValidation = async (themeId, skillIndex, newValidation) => {
-  const theme = value.find((t) => t.id === themeId);
-  if (!theme) return;
+ 
+  const removeTheme = async (id) => {
+    try {
+      const res = await fetch(`http://localhost:3000/themes/${id}`, {
+        method: "DELETE",
+      });
 
-  const updatedSkills = theme.skills.map((skill, i) =>
-    i === skillIndex ? { ...skill, validation: newValidation } : skill
-  );
+      if (!res.ok) throw new Error("Erreur suppression");
 
-  // UI
-  setValue((prev) =>
-    prev.map((t) => (t.id === themeId ? { ...t, skills: updatedSkills } : t))
-  );
-
-  // Backend: on remplace la colonne skills
-  try {
-    const res = await fetch(`http://localhost:3000/themes/${themeId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ skills: updatedSkills }),
-    });
-
-    if (!res.ok) throw new Error("Erreur update validation");
-  } catch (err) {
-    setError(err.message);
-  }
-};
-const removeTheme = async (id) => {
-  try {
-    const res = await fetch(`http://localhost:3000/themes/${id}`, {
-      method: "DELETE",
-    });
-
-    if (!res.ok) throw new Error("Erreur suppression");
-
-    setValue((prev) => prev.filter((item) => item.id !== id));
-  } catch (err) {
-    setError(err.message);
-  }
-};
-
+      setValue((prev) => prev.filter((item) => item.id !== id));
+    } catch (err) {
+      setError(err.message);
+    }
+  };
 
   if (loading) return <p>Chargement...</p>;
   if (error) return <p>{error}</p>;
@@ -71,7 +46,7 @@ const removeTheme = async (id) => {
         <div className="container" key={event.id}>
           <Themes event={event} removeTheme={removeTheme} />
 
-          <Skills event={event} updateSkillValidation={updateSkillValidation}/>
+          <Skills event={event}/>
         </div>
       ))}
     </div>
