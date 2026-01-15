@@ -10,13 +10,13 @@ export function Skills({ event}) {
         index === skillIndex ? { ...skill, validation: status } : skill
       )
     );
-    console.log(id)
+    console.log(id, skillIndex, status)
     await fetch(
       `http://localhost:3000/themes/${id}/skills/${skillIndex}/${status}`,
       { method: "PUT" }
     );
     
-    console.log(id, skillIndex, status);
+    
   }
   
   
@@ -24,7 +24,7 @@ export function Skills({ event}) {
    
     <ul>
       {skills.map((skill, index) => (
-        <li key={index}>
+        <li key={index} className="skills-item">
       {skill.label}
       <select
         className="select"
